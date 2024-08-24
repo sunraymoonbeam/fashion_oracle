@@ -7,10 +7,7 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from PIL import Image
 
-from .utils import (
-    load_segmentation_model,
-    get_class_seg_palette,
-)
+from .utils import load_segmentation_model, get_class_seg_palette, is_mostly_magenta
 
 
 class NormalizeImage:
@@ -133,7 +130,9 @@ class ImageSegmenter:
         segmented_img = segmented_img.convert("RGB")
         return segmented_img
 
-    def segment_image(self, input_image: Union[str, Image.Image]) -> Image.Image:
+    def segment_image(
+        self, input_image: Union[str, Image.Image]
+    ) -> Union[Image.Image, None]:
         """
         Segments a single image and returns the result.
 
@@ -141,7 +140,7 @@ class ImageSegmenter:
             input_image (Union[str, Image.Image]): Path to the input image or an image array.
 
         Returns:
-            Image.Image: The segmented image.
+            Union[Image.Image, None]: The segmented image or None if the image is mostly magenta.
         """
         if isinstance(input_image, str):
             input_image = Image.open(input_image).convert("RGB")
@@ -153,6 +152,10 @@ class ImageSegmenter:
         image_tensor = self.preprocess_image(input_image)
         mask_arr = self.generate_segmentation_mask(image_tensor)
         segmented_img = self.overlay_mask(input_image, mask_arr)
+
+        if is_mostly_magenta(segmented_img):
+            return None
+
         return segmented_img
 
     def segment_images_dir(self, input_dir: str, output_dir: str) -> None:
@@ -168,22 +171,33 @@ class ImageSegmenter:
 
         for root, _, files in os.walk(input_dir):
             for file in files:
-                if file.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".tiff")):
-                    input_image_path = os.path.join(root, file)
-                    relative_path = os.path.relpath(root, input_dir)
-                    output_image_dir = os.path.join(output_dir, relative_path)
+                if file.lower().endswith(
+                    (".png", ".jpg", ".jpeg", ".bmp", ".tiff")
+                ) and not file.startswith("."):
+                    try:
+                        input_image_path = os.path.join(root, file)
+                        relative_path = os.path.relpath(root, input_dir)
+                        output_image_dir = os.path.join(output_dir, relative_path)
 
-                    if not os.path.exists(output_image_dir):
-                        os.makedirs(output_image_dir)
+                        if not os.path.exists(output_image_dir):
+                            os.makedirs(output_image_dir)
 
-                    file_name, file_ext = os.path.splitext(file)
-                    output_image_path = os.path.join(
-                        output_image_dir, f"{file_name}_segmented{file_ext}"
-                    )
+                        file_name, file_ext = os.path.splitext(file)
+                        output_image_path = os.path.join(
+                            output_image_dir, f"{file_name}_segmented{file_ext}"
+                        )
 
-                    segmented_img = self.segment_image(input_image_path)
-                    segmented_img.save(output_image_path)
-                    print(f"Processed and saved: {output_image_path}")
+                        segmented_img = self.segment_image(input_image_path)
+                        if (
+                            segmented_img is not None
+                        ):  # Check if the image is not mostly magenta
+                            segmented_img.save(output_image_path)
+                            print(f"Processed and saved: {output_image_path}")
+                        else:
+                            print(f"Skipped saving {file} due to high magenta content.")
+                    except Exception as e:
+                        print(f"Error processing {file}: {e}")
+                        continue
 
 
 # class ImageSegmenter:

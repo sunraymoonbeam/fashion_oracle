@@ -1,11 +1,14 @@
 import os
+import numpy as np
 import logging
 from collections import OrderedDict
 from typing import List
 
 import gdown
+from PIL import Image
 import torch
 from torch.nn import Module
+
 
 from .u2net_architecture import U2NET
 
@@ -104,3 +107,25 @@ def get_class_seg_palette(num_cls: int) -> List[int]:
             i += 1
             lab >>= 3
     return palette
+
+
+def is_mostly_magenta(image: Image.Image, threshold: float = 0.8) -> bool:
+    """
+    Checks if the image is mostly magenta.
+
+    Args:
+        image (Image.Image): The image to check.
+        threshold (float): The threshold percentage of magenta pixels.
+
+    Returns:
+        bool: True if the image is mostly magenta, False otherwise.
+    """
+    # Convert image to numpy array
+    img_array = np.array(image)
+    # Define magenta color
+    magenta_color = np.array([255, 0, 255, 255])
+    # Create a mask for magenta pixels
+    magenta_mask = np.all(img_array == magenta_color, axis=-1)
+    # Calculate the percentage of magenta pixels
+    magenta_percentage = np.mean(magenta_mask)
+    return magenta_percentage > threshold
