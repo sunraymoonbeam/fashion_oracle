@@ -3,7 +3,7 @@ random_seed: 42
 segmentation:
   download_model_url: "https://drive.google.com/uc?id=11xTBALOeUkyuaK3l60CpkYHLTmv7k3dY" # URL to the U2Net model checkpoint
   checkpoint_path: "./models/segmentation/u2net.pth" # Path to the U2Net model checkpoint
-  device: "cpu" # Device to run the segmentation model on
+  device: "mps" # Device to run the segmentation model on
   input_dir: "./data/raw"
   output_dir: "./data/segmented"
 
