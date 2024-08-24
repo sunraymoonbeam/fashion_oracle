@@ -1,0 +1,12 @@
+img_path: "./data/raw/formal/brown_suit.jpg"
+save_dir: "./reports/figures/visuals"
+num_filters: 64
+layer: "top_activation"
+layers_to_visualize:
+  - "block2a_expand_conv"
+  - "block4a_expand_conv"
+  - "block6a_expand_conv"
+  - "top_conv"
+  - "top_activation"
+
+

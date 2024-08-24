@@ -1,0 +1,52 @@
+defaults:
+  - override hydra/sweeper: optuna
+  - override hydra/sweeper/sampler: tpe
+
+hydra:
+  sweeper:
+    sampler:
+      seed: 55
+    direction: ["minimize", "maximize"]
+    study_name: "image-classification"
+    storage: null
+    n_trials: 10
+    n_jobs: 1
+    params:
+      training.batch_size: range(16, 128, step=16)
+      training.learning_rate: choice(0.005,0.01,0.1)
+  run:
+    dir: '.'  # Keeps the working directory unchanged
+  job_logging:
+    root:
+      handlers: []  # Disables logging by not specifying any handlers
+
+random_seed: 42
+
+training:
+  base_model: "EfficientNetB0"
+  device: "/cpu:0"
+  num_classes: 2
+  train_dir: "./data/spilts/train"
+  val_dir: "./data/spilts/val"
+  test_dir: "./data/spilts/test"
+  epochs: 10
+  batch_size: 32
+  optimizer: "adam"
+  learning_rate: 0.001
+  metrics: ["accuracy", "precision", "recall"]
+  verbose: 1
+  save_model: false
+  save_model_dir: "models/classification"
+
+preprocessing:
+  img_height: 224 # Standard image size for many pretrained models
+  img_width: 224
+  
+mlflow:
+  setup_mlflow: false
+  mlflow_autolog: true
+  mlflow_tracking_uri: "./mlruns"
+  mlflow_exp_name: "outfit_classfier"
+  mlflow_run_name: "EfficientNetB0"
+
+

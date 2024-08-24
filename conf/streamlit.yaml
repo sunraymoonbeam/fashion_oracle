@@ -1,0 +1,16 @@
+segmentation_model_path: "./models/u2net.pth"
+classification_model_path: "./models/EfficientNetB0.keras"
+class_mapping_path: "./conf/class_mapping.json"
+layer_to_visualize: "top_activation"
+img_height: 224
+img_width: 224
+num_filters: 64
+layers_to_visualize:
+  - "block2a_expand_conv"
+  - "block3a_expand_conv"
+  - "block4a_expand_conv"
+  - "block5a_expand_conv"
+  - "block6a_expand_conv"
+  - "block7a_expand_conv"
+  - "top_conv"
+  - "top_activation"
