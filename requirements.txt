@@ -8,7 +8,7 @@ jsonlines==4.0.0
 matplotlib
 mlflow-skinny==2.9.2
 numpy>=1.21.0
-opencv-python
+opencv-python-headless
 pandas==2.1.4
 Pillow
 pydantic==2.5.3
