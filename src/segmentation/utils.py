@@ -109,6 +109,28 @@ def get_class_seg_palette(num_cls: int) -> List[int]:
     return palette
 
 
+# def is_mostly_magenta(image: Image.Image, threshold: float = 0.8) -> bool:
+#     """
+#     Checks if the image is mostly magenta.
+
+#     Args:
+#         image (Image.Image): The image to check.
+#         threshold (float): The threshold percentage of magenta pixels.
+
+#     Returns:
+#         bool: True if the image is mostly magenta, False otherwise.
+#     """
+#     # Convert image to numpy array
+#     img_array = np.array(image)
+#     # Define magenta color
+#     magenta_color = np.array([255, 0, 255, 255])
+#     # Create a mask for magenta pixels
+#     magenta_mask = np.all(img_array == magenta_color, axis=-1)
+#     # Calculate the percentage of magenta pixels
+#     magenta_percentage = np.mean(magenta_mask)
+#     return magenta_percentage > threshold
+
+
 def is_mostly_magenta(image: Image.Image, threshold: float = 0.8) -> bool:
     """
     Checks if the image is mostly magenta.
@@ -122,6 +144,11 @@ def is_mostly_magenta(image: Image.Image, threshold: float = 0.8) -> bool:
     """
     # Convert image to numpy array
     img_array = np.array(image)
+    # Ensure the image array has 4 channels (RGBA)
+    if img_array.shape[-1] == 3:
+        img_array = np.concatenate(
+            [img_array, np.full((*img_array.shape[:2], 1), 255)], axis=-1
+        )
     # Define magenta color
     magenta_color = np.array([255, 0, 255, 255])
     # Create a mask for magenta pixels
